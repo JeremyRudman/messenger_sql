@@ -44,8 +44,8 @@ app.get('/users',(req,res)=>{
 });
 
 app.get('/users/add',(req,res)=> {
-   const {username}=req.query;
-   const INSERT_USER='INSERT INTO users (username) VALUE (\''+username+'\')';
+   const {username,password}=req.query;
+   const INSERT_USER=`INSERT INTO users (username,userPasswords) VALUE (\'${username}\',sha2(CONCAT(\'${password}\',\'boring\'),256))`;
    connection.query(INSERT_USER, (err, result) => {
       if (err) throw err;
       console.log(result);
@@ -54,8 +54,8 @@ app.get('/users/add',(req,res)=> {
 });
 
 app.get('/users/get',(req,res)=> {
-   const {username}=req.query;
-   const GET_USER='select * from users where username=\''+username+'\'';
+   const {username,password}=req.query;
+   const GET_USER=`select * from users where username=\'${username}\' and userPasswords=sha2(CONCAT(\'${password}\',\'boring\'),256)`;
    connection.query(GET_USER, (err, result) => {
       if(err){
          return res.send(err)
@@ -67,7 +67,7 @@ app.get('/users/get',(req,res)=> {
       }
    });
 });
-
+//UPDATE users set userPasswords=sha2(CONCAT('stevepass', 'boring'),256) where username='steve';
 app.get('/users/send', (req,res)=>{
   const {userID,toUserID,message}=req.query;
   const SEND_TO_USER='INSERT INTO messages (messageDATE,messageDATETIME,message,userID,toUserID) VALUE(current_date(),now(),\''+message+'\','+userID+','+toUserID+')';
